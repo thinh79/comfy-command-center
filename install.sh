@@ -2,7 +2,7 @@
 
 # --- CẤU HÌNH ---
 # Tự động lấy URL của repo hiện tại (nếu file này được clone về)
-# Hoặc bạn có thể điền cứng: REPO_URL="https://github.com/username/repo.git"
+# Hoặc bạn có thể điền cứng: REPO_URL="https://github.com/thinh79/comfy-command-center.git"
 MY_DIR="/workspace/ai-command-center"
 COMFY_ROOT="/workspace/ComfyUI"
 
