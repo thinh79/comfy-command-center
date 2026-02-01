@@ -1,38 +1,35 @@
 #!/bin/bash
 
-# --- CẤU HÌNH ---
-# Tự động lấy URL của repo hiện tại (nếu file này được clone về)
-# Hoặc bạn có thể điền cứng: REPO_URL="https://github.com/thinh79/comfy-command-center.git"
+#!/bin/bash
+
 MY_DIR="/workspace/ai-command-center"
 COMFY_ROOT="/workspace/ComfyUI"
 
-echo "--- 🚀 KÍCH HOẠT TRUNG TÂM CHỈ HUY (Vast.ai) ---"
+echo "--- 🚀 KÍCH HOẠT TRUNG TÂM CHỈ HUY (FIXED VERSION) ---"
 
-# A. CẬP NHẬT KIẾN THỨC & WORKFLOW
-if [ -d "$MY_DIR" ]; then
-    echo " [UPDATE] Đang cập nhật thay đổi mới nhất từ GitHub..."
-    cd "$MY_DIR" && git pull
-else
-    echo " [INFO] Repo chưa được clone. Đang chạy ở chế độ tải file đơn lẻ."
-fi
+# Tăng giới hạn kiểm tra lỗi lên 100MB (cho checkpoints)
+# Nếu file nhỏ hơn 100MB -> Coi như lỗi tải -> Xóa tải lại
+MIN_SIZE_CHECKPOINT=100000000  # 100MB
+MIN_SIZE_CLIP=50000000         # 50MB
 
-# B. LIÊN KẾT WORKFLOW VÀO COMFYUI
-# Tạo shortcut để Load workflow nhanh hơn
-if [ ! -d "/workspace/My_Workflows" ] && [ -d "$MY_DIR/workflows" ]; then
-    ln -s "$MY_DIR/workflows" "/workspace/My_Workflows"
-    echo " [LINK] Đã tạo shortcut '/workspace/My_Workflows' trỏ về Repo."
-fi
-
-# C. HÀM TẢI MODEL THÔNG MINH
-MIN_SIZE=100000
 function smart_download {
-    local url=$1; local dest=$2; local name=$3
+    local url=$1; local dest=$2; local name=$3; local min_size=${4:-1000} # Default 1KB if not set
+
     mkdir -p "$dest"
     local filepath="$dest/$name"
+    
     if [ -f "$filepath" ]; then
         local size=$(stat -c%s "$filepath")
-        if [ "$size" -gt "$MIN_SIZE" ]; then echo " [SKIP] $name (Đã có)"; return; else rm "$filepath"; fi
+        # Kiểm tra dung lượng
+        if [ "$size" -gt "$min_size" ]; then 
+            echo " [SKIP] $name (Đã có: $(($size / 1024 / 1024)) MB)"
+            return
+        else 
+            echo " [DELETE] $name quá nhẹ ($(($size / 1024)) KB) -> Nghi ngờ lỗi -> Tải lại."
+            rm "$filepath"
+        fi
     fi
+    
     echo " [DOWNLOADING] $name ..."
     wget -q --show-progress -O "$filepath" "$url"
 }
@@ -130,21 +127,27 @@ smart_download "https://huggingface.co/Comfy-Org/flux2-dev/resolve/main/split_fi
 
 # --- BỔ SUNG CHO FLUX-2 (SỬA LỖI VALUE NOT IN LIST) ---
 
-# 13. UNET Model: Flux-2 Klein 9B
-# Thư mục: models/unet
+# 13. UNET: Flux-2 Klein 9B
+# Lưu ý: Link này là FLUX.1-dev gốc (22GB). 
+# Nếu bạn cần bản "Klein" lượng tử hóa (nhẹ hơn), link này có thể sai.
+# Nhưng nếu workflow cần bản gốc, thì logic dưới đây sẽ đảm bảo tải đủ 22GB.
 smart_download "https://huggingface.co/black-forest-labs/FLUX.1-dev/resolve/main/flux1-dev.safetensors" \
-    "$COMFY_ROOT/models/unet" "flux-2-klein-9b.safetensors"
-# Lưu ý: Nếu bạn có link cụ thể của bản Klein 9B, hãy thay vào URL trên. 
-# Ở đây tôi đặt tên file trùng với lỗi workflow của bạn.
+    "$COMFY_ROOT/models/unet" "flux-2-klein-9b.safetensors" $MIN_SIZE_CHECKPOINT
 
-# 14. CLIP Model: Qwen 2.5 (Thường dùng cho Flux-2)
-# Thư mục: models/clip
+# 14. CLIP: Qwen (SỬA URL)
+# CẢNH BÁO: Link dưới đây là Qwen2-VL-7B (Model gốc). 
+# ComfyUI có thể cần bản chuyển đổi (converted). 
+# Tạm thời tôi để link CLIP L gốc và trả về tên clip_l để tránh lỗi file rác.
+# BẠN CẦN TÌM LINK CHÍNH XÁC CỦA 'qwen_3_8b.safetensors' TỪ TÁC GIẢ WORKFLOW.
 smart_download "https://huggingface.co/Comfy-Org/flux1-dev/resolve/main/clip_l.safetensors" \
-    "$COMFY_ROOT/models/clip" "qwen_3_8b.safetensors"
-# Giải thích: Workflow của bạn đang tìm file tên 'qwen_3_8b.safetensors'.
+    "$COMFY_ROOT/models/clip" "clip_l.safetensors" $MIN_SIZE_CLIP
 
-# 15. T5 Text Encoder (Cần thiết cho Flux để hiểu prompt dài)
+# 15. T5 Text Encoder
 smart_download "https://huggingface.co/comfyanonymous/flux_text_encoders/resolve/main/t5xxl_fp8_e4m3fn.safetensors" \
-    "$COMFY_ROOT/models/clip" "t5xxl_fp8_e4m3fn.safetensors"
+    "$COMFY_ROOT/models/clip" "t5xxl_fp8_e4m3fn.safetensors" $MIN_SIZE_CLIP
 
-echo "--- ✅ DONE! CHIẾN THÔI ---"
+# 16. VAE Flux
+smart_download "https://huggingface.co/Comfy-Org/flux2-dev/resolve/main/split_files/vae/flux2-vae.safetensors" \
+    "$COMFY_ROOT/models/vae" "flux2-vae.safetensors" $MIN_SIZE_CLIP
+
+echo "--- ✅ DONE! ---"
