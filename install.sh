@@ -63,4 +63,64 @@ fi
 smart_download "https://huggingface.co/Comfy-Org/stable_diffusion_2.1_repackaged/resolve/main/512-inpainting-ema.safetensors" \
     "$COMFY_ROOT/models/checkpoints" "512-inpainting-ema.safetensors"
 
+# -------------------------------------------------------
+# BỔ SUNG: CÁC MODEL THIẾU THƯỜNG GẶP
+# -------------------------------------------------------
+
+# 6. Upscalers (Quan trọng để làm nét ảnh)
+# Thư mục: models/upscale_models
+smart_download "https://huggingface.co/lokkr/4x-Ultrasharp/resolve/main/4x-UltraSharp.pth" \
+    "$COMFY_ROOT/models/upscale_models" "4x-UltraSharp.pth"
+
+smart_download "https://huggingface.co/ai-forever/Real-ESRGAN/resolve/main/RealESRGAN_x4plus.pth" \
+    "$COMFY_ROOT/models/upscale_models" "RealESRGAN_x4plus.pth"
+
+# 7. Embeddings (Textual Inversion - Dùng cho Negative Prompt để ảnh đẹp hơn)
+# Thư mục: models/embeddings
+smart_download "https://huggingface.co/datasets/gsdf/EasyNegative/resolve/main/EasyNegative.safetensors" \
+    "$COMFY_ROOT/models/embeddings" "EasyNegative.safetensors"
+
+smart_download "https://huggingface.co/stabilityai/sd-vae-ft-mse-original/resolve/main/vae-ft-mse-840000-ema-pruned.safetensors" \
+    "$COMFY_ROOT/models/embeddings" "bad-hands-5.pt" 
+    # Lưu ý: Link bad-hands mẫu, nếu cần file chuẩn từ Civitai hãy thay link tương ứng, hoặc dùng EasyNegative là đủ cho MajicMix.
+
+# 8. ControlNet Bổ sung (Ngoài OpenPose, đây là 3 cái quan trọng nhất)
+# Thư mục: models/controlnet
+
+# Canny (Tạo nét viền)
+smart_download "https://huggingface.co/comfyanonymous/ControlNet-v1-1_fp16_safetensors/resolve/main/control_v11p_sd15_canny_fp16.safetensors" \
+    "$COMFY_ROOT/models/controlnet" "control_v11p_sd15_canny_fp16.safetensors"
+
+# Depth (Chiều sâu)
+smart_download "https://huggingface.co/comfyanonymous/ControlNet-v1-1_fp16_safetensors/resolve/main/control_v11p_sd15_depth_fp16.safetensors" \
+    "$COMFY_ROOT/models/controlnet" "control_v11p_sd15_depth_fp16.safetensors"
+
+# Tile (Dùng để Upscale ảnh chi tiết cao - Rất quan trọng)
+smart_download "https://huggingface.co/comfyanonymous/ControlNet-v1-1_fp16_safetensors/resolve/main/control_v11p_sd15_tile_fp16.safetensors" \
+    "$COMFY_ROOT/models/controlnet" "control_v11p_sd15_tile_fp16.safetensors"
+
+# Lineart (Vẽ nét đẹp hơn Canny cho anime/art)
+smart_download "https://huggingface.co/comfyanonymous/ControlNet-v1-1_fp16_safetensors/resolve/main/control_v11p_sd15_lineart_fp16.safetensors" \
+    "$COMFY_ROOT/models/controlnet" "control_v11p_sd15_lineart_fp16.safetensors"
+
+# 9. LoRAs (Ví dụ LCM để render siêu tốc hoặc Detailer)
+# Thư mục: models/loras
+smart_download "https://huggingface.co/latent-consistency/lcm-lora-sdv1-5/resolve/main/pytorch_lora_weights.safetensors" \
+    "$COMFY_ROOT/models/loras" "lcm-lora-sdv1-5.safetensors"
+
+smart_download "https://civitai.com/api/download/models/135931?type=Model&format=SafeTensor" \
+    "$COMFY_ROOT/models/loras" "Add_Detail_LoRA.safetensors"
+
+# 10. CLIP Vision (Cần thiết nếu dùng IP-Adapter để copy style ảnh)
+# Thư mục: models/clip_vision
+smart_download "https://huggingface.co/h94/IP-Adapter/resolve/main/models/image_encoder/model.safetensors" \
+    "$COMFY_ROOT/models/clip_vision" "CLIP-ViT-H-14-laion2B-s32B-b79K.safetensors"
+
+# 11. IP-Adapter Models (Copy dáng/mặt cực mạnh)
+# Thư mục: custom_nodes/ComfyUI_IPAdapter_plus/models (hoặc models/ipadapter tùy version node)
+# Tạo thư mục chuẩn chung cho ComfyUI hiện đại:
+mkdir -p "$COMFY_ROOT/models/ipadapter"
+smart_download "https://huggingface.co/h94/IP-Adapter/resolve/main/models/ip-adapter-plus_sd15.safetensors" \
+    "$COMFY_ROOT/models/ipadapter" "ip-adapter-plus_sd15.safetensors"
+
 echo "--- ✅ DONE! CHIẾN THÔI ---"
