@@ -59,4 +59,8 @@ if [ ! -d "$COMFY_ROOT/custom_nodes/ComfyUI-Manager" ]; then
     git clone https://github.com/ltdrdata/ComfyUI-Manager.git "$COMFY_ROOT/custom_nodes/ComfyUI-Manager"
 fi
 
+# 5. Checkpoint Inpainting (SD 2.1)
+smart_download "https://huggingface.co/Comfy-Org/stable_diffusion_2.1_repackaged/resolve/main/512-inpainting-ema.safetensors" \
+    "$COMFY_ROOT/models/checkpoints" "512-inpainting-ema.safetensors"
+
 echo "--- ✅ DONE! CHIẾN THÔI ---"
