@@ -128,4 +128,23 @@ smart_download "https://huggingface.co/h94/IP-Adapter/resolve/main/models/ip-ada
 smart_download "https://huggingface.co/Comfy-Org/flux2-dev/resolve/main/split_files/vae/flux2-vae.safetensors" \
     "$COMFY_ROOT/models/vae" "flux2-vae.safetensors"
 
+# --- BỔ SUNG CHO FLUX-2 (SỬA LỖI VALUE NOT IN LIST) ---
+
+# 13. UNET Model: Flux-2 Klein 9B
+# Thư mục: models/unet
+smart_download "https://huggingface.co/black-forest-labs/FLUX.1-dev/resolve/main/flux1-dev.safetensors" \
+    "$COMFY_ROOT/models/unet" "flux-2-klein-9b.safetensors"
+# Lưu ý: Nếu bạn có link cụ thể của bản Klein 9B, hãy thay vào URL trên. 
+# Ở đây tôi đặt tên file trùng với lỗi workflow của bạn.
+
+# 14. CLIP Model: Qwen 2.5 (Thường dùng cho Flux-2)
+# Thư mục: models/clip
+smart_download "https://huggingface.co/Comfy-Org/flux1-dev/resolve/main/clip_l.safetensors" \
+    "$COMFY_ROOT/models/clip" "qwen_3_8b.safetensors"
+# Giải thích: Workflow của bạn đang tìm file tên 'qwen_3_8b.safetensors'.
+
+# 15. T5 Text Encoder (Cần thiết cho Flux để hiểu prompt dài)
+smart_download "https://huggingface.co/comfyanonymous/flux_text_encoders/resolve/main/t5xxl_fp8_e4m3fn.safetensors" \
+    "$COMFY_ROOT/models/clip" "t5xxl_fp8_e4m3fn.safetensors"
+
 echo "--- ✅ DONE! CHIẾN THÔI ---"
