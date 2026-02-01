@@ -123,4 +123,9 @@ mkdir -p "$COMFY_ROOT/models/ipadapter"
 smart_download "https://huggingface.co/h94/IP-Adapter/resolve/main/models/ip-adapter-plus_sd15.safetensors" \
     "$COMFY_ROOT/models/ipadapter" "ip-adapter-plus_sd15.safetensors"
 
+# 12. FLUX VAE (Missing from your graph)
+# This is specifically for FLUX.1 models
+smart_download "https://huggingface.co/Comfy-Org/flux2-dev/resolve/main/split_files/vae/flux2-vae.safetensors" \
+    "$COMFY_ROOT/models/vae" "flux2-vae.safetensors"
+
 echo "--- ✅ DONE! CHIẾN THÔI ---"
