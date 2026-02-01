@@ -102,4 +102,10 @@ smart_download "https://huggingface.co/black-forest-labs/FLUX.1-dev/resolve/main
 smart_download "https://huggingface.co/comfyanonymous/flux_text_encoders/resolve/main/clip_l.safetensors" \
     "$COMFY_ROOT/models/clip" "clip_l.safetensors" $MIN_SIZE_CLIP
 
+# --- DÁN ĐOẠN MỚI VÀO ĐÂY ---
+# 7. Qwen CLIP (Bổ sung)
+smart_download "https://huggingface.co/prithivML/Qwen2.5-3B-Instruct-SafeTensor/resolve/main/model.safetensors" \
+    "$COMFY_ROOT/models/clip" "qwen_3_8b.safetensors" $MIN_SIZE_CLIP
+# -----------------------------
+
 echo "--- ✅ DONE! ---"
