@@ -1,5 +1,6 @@
 #!/bin/bash
-#1035
+echo "version: 1035"
+
 MY_DIR="/workspace/ai-command-center"
 COMFY_ROOT="/workspace/ComfyUI"
 
