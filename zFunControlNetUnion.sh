@@ -1,5 +1,5 @@
 #!/bin/bash
-echo "version: 1035"
+echo "version: 1043"
 
 MY_DIR="/workspace/ai-command-center"
 COMFY_ROOT="/workspace/ComfyUI"
@@ -62,8 +62,12 @@ function smart_download {
 }
 
 echo "--- 📥 BẮT ĐẦU TẢI CÁC THÀNH PHẦN Z-IMAGE-TURBO ---"
+# 1.1. Bản BF16 (Mới thêm theo yêu cầu của bạn) - Khoảng 11.46 GB
+echo "🔹 Tải Main Model (BF16)..."
+smart_download "https://huggingface.co/Comfy-Org/z_image_turbo/resolve/main/split_files/diffusion_models/z_image_turbo_bf16.safetensors" \
+    "$COMFY_ROOT/models/diffusion_models" "z_image_turbo_bf16.safetensors" $MIN_SIZE_CHECKPOINT
 
-# 1. Z Image Turbo Main Model (FP8)
+# 1.2. Bản FP8Z Image Turbo Main Model (FP8)
 # Nơi lưu: ComfyUI/models/diffusion_models/
 echo "🔹 Tải Main Model (FP8)..."
 smart_download "https://huggingface.co/T5B/Z-Image-Turbo-FP8/resolve/main/z-image-turbo-fp8-e4m3fn.safetensors?download=true" \
