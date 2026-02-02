@@ -100,8 +100,12 @@ smart_download "https://huggingface.co/black-forest-labs/FLUX.1-dev/resolve/main
 smart_download "https://huggingface.co/comfyanonymous/flux_text_encoders/resolve/main/clip_l.safetensors" \
     "$COMFY_ROOT/models/clip" "clip_l.safetensors" $MIN_SIZE_CLIP
 
-# Qwen 2.5 3B (Public -> KHÔNG dùng Auth)
+# 6. Qwen 2.5 3B (Public -> KHÔNG dùng Auth)
 smart_download "https://huggingface.co/prithivML/Qwen2.5-3B-Instruct-SafeTensor/resolve/main/model.safetensors" \
     "$COMFY_ROOT/models/clip" "qwen_3_8b.safetensors" $MIN_SIZE_CLIP
+
+# 7. Model Patches (Z-Image-Turbo-Fun-Controlnet-Union)
+smart_download "https://huggingface.co/alibaba-pai/Z-Image-Turbo-Fun-Controlnet-Union-2.1/resolve/main/Z-Image-Turbo-Fun-Controlnet-Union-2.1.safetensors" \
+    "$COMFY_ROOT/models/model_patches" "Z-Image-Turbo-Fun-Controlnet-Union-2.1.safetensors" $MIN_SIZE_CHECKPOINT
 
 echo "--- ✅ DONE! ---"
