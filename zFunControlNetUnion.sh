@@ -65,7 +65,7 @@ echo "--- 📥 BẮT ĐẦU TẢI CÁC THÀNH PHẦN Z-IMAGE-TURBO ---"
 # 1. Z Image Turbo Main Model (FP8)
 # Nơi lưu: ComfyUI/models/diffusion_models/
 echo "🔹 Tải Main Model (FP8)..."
-smart_download "https://huggingface.co/T5B/Z-Image-Turbo-FP8/resolve/main/z_image_turbo_fp8.safetensors" \
+smart_download "https://huggingface.co/T5B/Z-Image-Turbo-FP8/resolve/main/z-image-turbo-fp8-e4m3fn.safetensors?download=true" \
     "$COMFY_ROOT/models/diffusion_models" "z_image_turbo_fp8.safetensors" $MIN_SIZE_CHECKPOINT
 
 # 2. Z Image Turbo Fun ControlNet Union Patch
