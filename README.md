@@ -7,3 +7,7 @@ bash -c "$(wget -qO- https://raw.githubusercontent.com/thinh79/comfy-command-cen
 ```sh
 bash -c "$(wget -qO- https://raw.githubusercontent.com/thinh79/comfy-command-center/refs/heads/thinh/ltx2.sh)"
 ```
+## qwen image outfit transfer
+```sh
+bash -c "$(wget -qO- https://raw.githubusercontent.com/thinh79/comfy-command-center/refs/heads/thinh/qwenImageEditOutfitTransfer.sh)"
+```
