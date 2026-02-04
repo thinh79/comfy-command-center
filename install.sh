@@ -1,21 +1,25 @@
 #!/bin/bash
 
+# Standard Variables
 MY_DIR="/workspace/ai-command-center"
 COMFY_ROOT="/workspace/ComfyUI"
 
-echo "--- 🚀 KÍCH HOẠT TRUNG TÂM CHỈ HUY (V5 - HYBRID MODE) ---"
+echo "--- 🚀 KÍCH HOẠT: QWEN OUTFIT TRANSFER (HUGGING FACE DIRECT) ---"
+echo "ver: 1609"
 
-# Check Token
+# 1. Check Token (Standard)
 if [ -z "$HF_TOKEN" ]; then
     echo "ℹ️  Info: Chưa có HF_TOKEN (Chỉ tải được model Public)."
 else
-    echo "✅ Đã nhận HF_TOKEN (Sẽ dùng cho Flux)."
+    echo "✅ Đã nhận HF_TOKEN."
 fi
 
+# 2. Constants (Standard)
 MIN_SIZE_CHECKPOINT=100000000  # 100MB
-MIN_SIZE_CLIP=50000000         # 50MB
+MIN_SIZE_LORA=10000000         # 10MB
+MIN_SIZE_OTHER=1000000         # 1MB
 
-# Hàm tải thông minh với tham số AUTH (Xác thực)
+# 3. Hàm tải thông minh (Standard - EXACT COPY)
 function smart_download {
     local url=$1; local dest=$2; local name=$3; local min_size=${4:-1024}; local need_auth=${5:-false}
 
@@ -37,7 +41,6 @@ function smart_download {
     echo " [DOWNLOADING] $name ..."
     
     # B2: Cấu hình wget
-    # Mặc định: Giả lập trình duyệt, Follow redirect
     WGET_ARGS=("-q" "--show-progress" "-L" "--no-check-certificate" "-U" "Mozilla/5.0 (Windows NT 10.0; Win64; x64)")
     
     # CHỈ thêm Token nếu tham số need_auth = true VÀ có Token
@@ -62,50 +65,33 @@ function smart_download {
     fi
 }
 
-echo "--- 📥 TẢI MODELS ---"
+echo "--- 📥 TẢI MODELS TỪ HUGGING FACE & CIVITAI ---"
 
-# 1. Checkpoint & VAE (Public -> KHÔNG dùng Auth)
-smart_download "https://civitai.com/api/download/models/176425?type=Model&format=SafeTensor&size=pruned&fp=fp16" \
-    "$COMFY_ROOT/models/checkpoints" "majicmixRealistic_v7.safetensors" $MIN_SIZE_CHECKPOINT
+# 4. Tải LoRA Lightning (Link HF bạn cung cấp)
+smart_download "https://huggingface.co/lightx2v/Qwen-Image-Lightning/resolve/main/Qwen-Image-Edit-2509/Qwen-Image-Edit-2509-Lightning-4steps-V1.0-bf16.safetensors" \
+    "$COMFY_ROOT/models/loras" "Qwen-Image-Edit-2509-Lightning-4steps-V1.0-bf16.safetensors" $MIN_SIZE_LORA
 
-smart_download "https://huggingface.co/stabilityai/sd-vae-ft-mse-original/resolve/main/vae-ft-mse-840000-ema-pruned.safetensors" \
-    "$COMFY_ROOT/models/vae" "vae-ft-mse-840000-ema-pruned.safetensors"
+# 5. Tải Main UNET (Node 37)
+smart_download "https://huggingface.co/Comfy-Org/Qwen-Image-Edit_ComfyUI/resolve/main/split_files/diffusion_models/qwen_image_edit_fp8_e4m3fn.safetensors" \
+    "$COMFY_ROOT/models/diffusion_models" "qwen_image_edit_2509_fp8_e4m3fn.safetensors" $MIN_SIZE_CHECKPOINT
 
-smart_download "https://huggingface.co/Comfy-Org/stable_diffusion_2.1_repackaged/resolve/main/512-inpainting-ema.safetensors" \
-    "$COMFY_ROOT/models/checkpoints" "512-inpainting-ema.safetensors" $MIN_SIZE_CHECKPOINT
+# 6. Text Encoder (Node 38)
+smart_download "https://huggingface.co/Comfy-Org/Qwen-Image_ComfyUI/resolve/main/split_files/text_encoders/qwen_2.5_vl_7b_fp8_scaled.safetensors" \
+    "$COMFY_ROOT/models/text_encoders" "qwen_2.5_vl_7b_fp8_scaled.safetensors" $MIN_SIZE_CHECKPOINT
 
-# 2. Upscalers (Public -> KHÔNG dùng Auth -> Fix lỗi 0KB)
-smart_download "https://huggingface.co/uwg/upscaler/resolve/main/ESRGAN/4x-UltraSharp.pth" \
-    "$COMFY_ROOT/models/upscale_models" "4x-UltraSharp.pth"
+# 7. VAE (Node 39)
+smart_download "https://huggingface.co/Comfy-Org/Qwen-Image_ComfyUI/resolve/main/split_files/vae/qwen_image_vae.safetensors" \
+    "$COMFY_ROOT/models/vae" "qwen_image_vae.safetensors" $MIN_SIZE_OTHER
 
-smart_download "https://huggingface.co/ZLUDA/Reliable-ESRGAN/resolve/main/RealESRGAN_x4plus.pth" \
-    "$COMFY_ROOT/models/upscale_models" "RealESRGAN_x4plus.pth"
+# 8. Outfit LoRAs (Civitai)
+smart_download "https://civitai.com/api/download/models/2388664?type=Model&format=SafeTensor" \
+    "$COMFY_ROOT/models/loras" "clothtransfer.safetensors" $MIN_SIZE_LORA
 
-# 3. ControlNet (Public -> KHÔNG dùng Auth -> Fix lỗi 0KB)
+smart_download "https://civitai.com/api/download/models/2196307?type=Model&format=SafeTensor" \
+    "$COMFY_ROOT/models/loras" "extract-outfit_v3.safetensors" $MIN_SIZE_LORA
+
+# 9. ControlNet OpenPose
 smart_download "https://huggingface.co/comfyanonymous/ControlNet-v1-1_fp16_safetensors/resolve/main/control_v11p_sd15_openpose_fp16.safetensors" \
-    "$COMFY_ROOT/models/controlnet" "control_v11p_sd15_openpose_fp16.safetensors"
+    "$COMFY_ROOT/models/controlnet" "control_v11p_sd15_openpose_fp16.safetensors" $MIN_SIZE_CHECKPOINT
 
-smart_download "https://huggingface.co/comfyanonymous/ControlNet-v1-1_fp16_safetensors/resolve/main/control_v11p_sd15_depth_fp16.safetensors" \
-    "$COMFY_ROOT/models/controlnet" "control_v11p_sd15_depth_fp16.safetensors"
-
-smart_download "https://huggingface.co/comfyanonymous/ControlNet-v1-1_fp16_safetensors/resolve/main/control_v11p_sd15_tile_fp16.safetensors" \
-    "$COMFY_ROOT/models/controlnet" "control_v11p_sd15_tile_fp16.safetensors"
-
-# 4. FLUX (Gated -> DÙNG Auth = true)
-# Bạn đã tải được Flux rồi nên nó sẽ Skip, nhưng tôi vẫn để code chuẩn ở đây
-smart_download "https://huggingface.co/black-forest-labs/FLUX.1-dev/resolve/main/flux1-dev.safetensors" \
-    "$COMFY_ROOT/models/unet" "flux1-dev.safetensors" $MIN_SIZE_CHECKPOINT "true"
-
-# 5. CLIPs & Qwen (Public -> KHÔNG dùng Auth -> Fix lỗi 0KB)
-smart_download "https://huggingface.co/comfyanonymous/flux_text_encoders/resolve/main/clip_l.safetensors" \
-    "$COMFY_ROOT/models/clip" "clip_l.safetensors" $MIN_SIZE_CLIP
-
-# 6. Qwen 2.5 3B (Public -> KHÔNG dùng Auth)
-smart_download "https://huggingface.co/prithivML/Qwen2.5-3B-Instruct-SafeTensor/resolve/main/model.safetensors" \
-    "$COMFY_ROOT/models/clip" "qwen_3_8b.safetensors" $MIN_SIZE_CLIP
-
-# 7. Model Patches (Z-Image-Turbo-Fun-Controlnet-Union)
-smart_download "https://huggingface.co/alibaba-pai/Z-Image-Turbo-Fun-Controlnet-Union-2.1/resolve/main/Z-Image-Turbo-Fun-Controlnet-Union-2.1.safetensors" \
-    "$COMFY_ROOT/models/model_patches" "Z-Image-Turbo-Fun-Controlnet-Union-2.1.safetensors" $MIN_SIZE_CHECKPOINT
-
-echo "--- ✅ DONE! ---"
+echo "--- ✅ DONE! Script đã tải đủ Models. Hãy Restart ComfyUI để sử dụng ---"
