@@ -14,6 +14,8 @@ fi
 
 MIN_SIZE_CHECKPOINT=100000000  # 100MB
 MIN_SIZE_CLIP=50000000         # 50MB
+SIZE_Z_IMAGE_TURBO_BF16=12309866400
+SIZE_QWEN_3_4B=8044982048
 
 # Hàm tải thông minh với tham số AUTH (Xác thực)
 function smart_download {
@@ -25,7 +27,7 @@ function smart_download {
     # B1: Kiểm tra file cũ
     if [ -f "$filepath" ]; then
         local size=$(stat -c%s "$filepath")
-        if [ "$size" -gt "$min_size" ]; then 
+        if [ "$size" -ge "$min_size" ]; then
             echo " [SKIP] $name (✅ OK: $(($size / 1024 / 1024)) MB)"
             return
         else 
@@ -106,10 +108,10 @@ smart_download "https://huggingface.co/prithivML/Qwen2.5-3B-Instruct-SafeTensor/
 
 # 7. Z-Image Turbo (Main Model & Text Encoder)
 smart_download "https://huggingface.co/Comfy-Org/z_image_turbo/resolve/main/split_files/diffusion_models/z_image_turbo_bf16.safetensors" \
-    "$COMFY_ROOT/models/diffusion_models" "z_image_turbo_bf16.safetensors" $MIN_SIZE_CHECKPOINT
+    "$COMFY_ROOT/models/diffusion_models" "z_image_turbo_bf16.safetensors" $SIZE_Z_IMAGE_TURBO_BF16
 
 smart_download "https://huggingface.co/Comfy-Org/z_image_turbo/resolve/main/split_files/text_encoders/qwen_3_4b.safetensors" \
-    "$COMFY_ROOT/models/text_encoders" "qwen_3_4b.safetensors" $MIN_SIZE_CLIP
+    "$COMFY_ROOT/models/text_encoders" "qwen_3_4b.safetensors" $SIZE_QWEN_3_4B
 
 # 8. Model Patches (Z-Image-Turbo-Fun-Controlnet-Union)
 smart_download "https://huggingface.co/alibaba-pai/Z-Image-Turbo-Fun-Controlnet-Union-2.1/resolve/main/Z-Image-Turbo-Fun-Controlnet-Union-2.1.safetensors" \
