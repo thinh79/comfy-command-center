@@ -104,7 +104,14 @@ smart_download "https://huggingface.co/comfyanonymous/flux_text_encoders/resolve
 smart_download "https://huggingface.co/prithivML/Qwen2.5-3B-Instruct-SafeTensor/resolve/main/model.safetensors" \
     "$COMFY_ROOT/models/clip" "qwen_3_8b.safetensors" $MIN_SIZE_CLIP
 
-# 7. Model Patches (Z-Image-Turbo-Fun-Controlnet-Union)
+# 7. Z-Image Turbo (Main Model & Text Encoder)
+smart_download "https://huggingface.co/Comfy-Org/z_image_turbo/resolve/main/split_files/diffusion_models/z_image_turbo_bf16.safetensors" \
+    "$COMFY_ROOT/models/diffusion_models" "z_image_turbo_bf16.safetensors" $MIN_SIZE_CHECKPOINT
+
+smart_download "https://huggingface.co/Comfy-Org/z_image_turbo/resolve/main/split_files/text_encoders/qwen_3_4b.safetensors" \
+    "$COMFY_ROOT/models/text_encoders" "qwen_3_4b.safetensors" $MIN_SIZE_CLIP
+
+# 8. Model Patches (Z-Image-Turbo-Fun-Controlnet-Union)
 smart_download "https://huggingface.co/alibaba-pai/Z-Image-Turbo-Fun-Controlnet-Union-2.1/resolve/main/Z-Image-Turbo-Fun-Controlnet-Union-2.1.safetensors" \
     "$COMFY_ROOT/models/model_patches" "Z-Image-Turbo-Fun-Controlnet-Union-2.1.safetensors" $MIN_SIZE_CHECKPOINT
 
