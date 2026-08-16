@@ -6,6 +6,10 @@ ESTIMATED_DOWNLOAD_GB="60-70"
 REQUIRED_FREE_GB=70
 MIN_SAFE_FREE_GB=25
 RECOMMENDED_DISK_GB=100
+MIN_WORKFLOW_VRAM_GB=24
+MIN_SYSTEM_RAM_GB=32
+RECOMMENDED_SYSTEM_RAM_GB=64
+MIN_CPU_CORES=8
 
 echo "--- 🚀 KÍCH HOẠT TRUNG TÂM CHỈ HUY (V5 - HYBRID MODE) ---"
 echo ""
@@ -18,6 +22,17 @@ echo " • Dung lượng trống yêu cầu: ít nhất $REQUIRED_FREE_GB GB"
 echo " • Disk instance khuyến nghị: từ $RECOMMENDED_DISK_GB GB"
 echo " • HF_TOKEN: cần cho FLUX.1-dev và các model gated"
 echo " • Sau khi tải xong: restart ComfyUI để nhận model mới"
+echo ""
+echo "--- 🖥️  GỢI Ý CHỌN MÁY TRÊN VAST.AI ---"
+echo " • GPU/VRAM: tối thiểu 24 GB cho workflow nặng; ưu tiên 32-48 GB để giảm offload"
+echo " • GPU gợi ý: RTX 3090/4090 trở lên; lý tưởng RTX 5090, A6000, L40S hoặc A100"
+echo " • CPU: tối thiểu $MIN_CPU_CORES vCPU; khuyến nghị 12-16 vCPU"
+echo " • System RAM: tối thiểu $MIN_SYSTEM_RAM_GB GB; khuyến nghị $RECOMMENDED_SYSTEM_RAM_GB GB"
+echo " • Disk: SSD/NVMe từ 500 MB/s; khuyến nghị NVMe từ 1,000 MB/s"
+echo " • Internet download: từ 500 Mbps; khuyến nghị 1 Gbps trở lên"
+echo " • Reliability: từ 95%; ưu tiên Verified hoặc Secure Cloud"
+echo " • DLPERF: chọn điểm cao hơn khi so sánh các máy cùng loại GPU"
+echo " • Rental: ưu tiên On-demand và kiểm tra Max Duration đủ dài"
 
 if ! command -v wget >/dev/null 2>&1; then
     echo "❌ Thiếu wget. Hãy cài wget trước khi chạy general."
@@ -32,6 +47,39 @@ fi
 AVAILABLE_KB=$(df -Pk "$COMFY_ROOT" | awk 'NR==2 {print $4}')
 AVAILABLE_GB=$((AVAILABLE_KB / 1024 / 1024))
 echo " • Dung lượng trống hiện tại: ${AVAILABLE_GB} GB"
+
+CPU_CORES=$(nproc 2>/dev/null || echo 0)
+SYSTEM_RAM_KB=$(awk '/MemTotal/ {print $2}' /proc/meminfo 2>/dev/null || echo 0)
+CPU_CORES=${CPU_CORES:-0}
+SYSTEM_RAM_KB=${SYSTEM_RAM_KB:-0}
+SYSTEM_RAM_GB=$((SYSTEM_RAM_KB / 1024 / 1024))
+echo " • CPU hiện tại: ${CPU_CORES} cores"
+echo " • System RAM hiện tại: ${SYSTEM_RAM_GB} GB"
+
+if command -v nvidia-smi >/dev/null 2>&1; then
+    GPU_INFO=$(nvidia-smi --query-gpu=name,memory.total --format=csv,noheader,nounits 2>/dev/null | head -n 1)
+    if [ -n "$GPU_INFO" ]; then
+        GPU_NAME=${GPU_INFO%,*}
+        GPU_VRAM_MIB=${GPU_INFO##*, }
+        GPU_VRAM_GB=$((GPU_VRAM_MIB / 1024))
+        echo " • GPU hiện tại: ${GPU_NAME} (${GPU_VRAM_GB} GB VRAM)"
+        if [ "$GPU_VRAM_GB" -lt "$MIN_WORKFLOW_VRAM_GB" ]; then
+            echo "⚠️  VRAM dưới ${MIN_WORKFLOW_VRAM_GB} GB: vẫn tải được model nhưng workflow nặng có thể OOM hoặc offload rất chậm."
+        fi
+    else
+        echo "⚠️  nvidia-smi không trả về thông tin GPU. Không thể kiểm tra VRAM."
+    fi
+else
+    echo "⚠️  Không phát hiện NVIDIA GPU/nvidia-smi. Script vẫn tải được model nhưng không thể kiểm tra VRAM."
+fi
+
+if [ "$CPU_CORES" -lt "$MIN_CPU_CORES" ]; then
+    echo "⚠️  CPU dưới ${MIN_CPU_CORES} cores: tải/cài vẫn được nhưng xử lý và offload có thể chậm."
+fi
+
+if [ "$SYSTEM_RAM_GB" -lt "$MIN_SYSTEM_RAM_GB" ]; then
+    echo "⚠️  RAM dưới ${MIN_SYSTEM_RAM_GB} GB: không phù hợp cho offload các model lớn."
+fi
 
 if [ "$AVAILABLE_GB" -lt "$MIN_SAFE_FREE_GB" ]; then
     echo "❌ Chỉ còn ${AVAILABLE_GB} GB. Cần tối thiểu ${MIN_SAFE_FREE_GB} GB để tránh model bị tải dở."
