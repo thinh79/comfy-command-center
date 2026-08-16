@@ -2,8 +2,47 @@
 
 MY_DIR="/workspace/ai-command-center"
 COMFY_ROOT="/workspace/ComfyUI"
+ESTIMATED_DOWNLOAD_GB="60-70"
+REQUIRED_FREE_GB=70
+MIN_SAFE_FREE_GB=25
+RECOMMENDED_DISK_GB=100
 
 echo "--- 🚀 KÍCH HOẠT TRUNG TÂM CHỈ HUY (V5 - HYBRID MODE) ---"
+echo ""
+echo "--- 📋 REQUIRED METADATA / YÊU CẦU TRƯỚC KHI CÀI ---"
+echo " • Nền tảng: Linux/Vast.ai với ComfyUI tại $COMFY_ROOT"
+echo " • Công cụ: bash, wget, kết nối Internet ổn định"
+echo " • Model: SD 1.5, FLUX.1-dev, Qwen và Z-Image Turbo"
+echo " • Dữ liệu tải dự kiến: $ESTIMATED_DOWNLOAD_GB GB cho lần cài đầy đủ"
+echo " • Dung lượng trống yêu cầu: ít nhất $REQUIRED_FREE_GB GB"
+echo " • Disk instance khuyến nghị: từ $RECOMMENDED_DISK_GB GB"
+echo " • HF_TOKEN: cần cho FLUX.1-dev và các model gated"
+echo " • Sau khi tải xong: restart ComfyUI để nhận model mới"
+
+if ! command -v wget >/dev/null 2>&1; then
+    echo "❌ Thiếu wget. Hãy cài wget trước khi chạy general."
+    exit 1
+fi
+
+if [ ! -d "$COMFY_ROOT" ]; then
+    echo "❌ Không tìm thấy ComfyUI tại $COMFY_ROOT"
+    exit 1
+fi
+
+AVAILABLE_KB=$(df -Pk "$COMFY_ROOT" | awk 'NR==2 {print $4}')
+AVAILABLE_GB=$((AVAILABLE_KB / 1024 / 1024))
+echo " • Dung lượng trống hiện tại: ${AVAILABLE_GB} GB"
+
+if [ "$AVAILABLE_GB" -lt "$MIN_SAFE_FREE_GB" ]; then
+    echo "❌ Chỉ còn ${AVAILABLE_GB} GB. Cần tối thiểu ${MIN_SAFE_FREE_GB} GB để tránh model bị tải dở."
+    echo "   Lần cài đầy đủ cần ít nhất ${REQUIRED_FREE_GB} GB trống. Hãy tăng disk hoặc dọn dung lượng rồi chạy lại."
+    exit 1
+elif [ "$AVAILABLE_GB" -lt "$REQUIRED_FREE_GB" ]; then
+    echo "⚠️  Ít hơn ${REQUIRED_FREE_GB} GB: chỉ nên tiếp tục nếu phần lớn model đã được cài trước đó."
+else
+    echo "✅ Dung lượng phù hợp cho lần cài đầy đủ."
+fi
+echo ""
 
 # Check Token
 if [ -z "$HF_TOKEN" ]; then
