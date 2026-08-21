@@ -2,10 +2,10 @@
 
 MY_DIR="/workspace/ai-command-center"
 COMFY_ROOT="/workspace/ComfyUI"
-ESTIMATED_DOWNLOAD_GB="60-70"
-REQUIRED_FREE_GB=70
+ESTIMATED_DOWNLOAD_GB="72-82"
+REQUIRED_FREE_GB=85
 MIN_SAFE_FREE_GB=25
-RECOMMENDED_DISK_GB=100
+RECOMMENDED_DISK_GB=120
 MIN_WORKFLOW_VRAM_GB=24
 MIN_SYSTEM_RAM_GB=32
 RECOMMENDED_SYSTEM_RAM_GB=64
@@ -103,6 +103,9 @@ MIN_SIZE_CHECKPOINT=100000000  # 100MB
 MIN_SIZE_CLIP=50000000         # 50MB
 SIZE_Z_IMAGE_TURBO_BF16=12309866400
 SIZE_QWEN_3_4B=8044982048
+SIZE_Z_IMAGE_TURBO_INT8_CONVROT=6201001296
+SIZE_QWEN_3_4B_FP8_MIXED=5631994051
+SIZE_Z_IMAGE_AE=335304388
 
 # Hàm tải thông minh với tham số AUTH (Xác thực)
 function smart_download {
@@ -200,7 +203,17 @@ smart_download "https://huggingface.co/Comfy-Org/z_image_turbo/resolve/main/spli
 smart_download "https://huggingface.co/Comfy-Org/z_image_turbo/resolve/main/split_files/text_encoders/qwen_3_4b.safetensors" \
     "$COMFY_ROOT/models/text_encoders" "qwen_3_4b.safetensors" $SIZE_QWEN_3_4B
 
-# 8. Model Patches (Z-Image-Turbo-Fun-Controlnet-Union)
+# 8. Z-Image Turbo quantized workflow bundle (one run installs all required files)
+smart_download "https://huggingface.co/Comfy-Org/z_image_turbo/resolve/main/split_files/diffusion_models/z_image_turbo_int8_convrot.safetensors" \
+    "$COMFY_ROOT/models/diffusion_models" "z_image_turbo_int8_convrot.safetensors" $SIZE_Z_IMAGE_TURBO_INT8_CONVROT
+
+smart_download "https://huggingface.co/Comfy-Org/z_image_turbo/resolve/main/split_files/text_encoders/qwen_3_4b_fp8_mixed.safetensors" \
+    "$COMFY_ROOT/models/text_encoders" "qwen_3_4b_fp8_mixed.safetensors" $SIZE_QWEN_3_4B_FP8_MIXED
+
+smart_download "https://huggingface.co/Comfy-Org/z_image_turbo/resolve/main/split_files/vae/ae.safetensors" \
+    "$COMFY_ROOT/models/vae" "ae.safetensors" $SIZE_Z_IMAGE_AE
+
+# 9. Model Patches (Z-Image-Turbo-Fun-Controlnet-Union)
 smart_download "https://huggingface.co/alibaba-pai/Z-Image-Turbo-Fun-Controlnet-Union-2.1/resolve/main/Z-Image-Turbo-Fun-Controlnet-Union-2.1.safetensors" \
     "$COMFY_ROOT/models/model_patches" "Z-Image-Turbo-Fun-Controlnet-Union-2.1.safetensors" $MIN_SIZE_CHECKPOINT
 

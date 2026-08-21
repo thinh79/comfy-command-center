@@ -6,13 +6,14 @@ Tải bộ model tổng hợp cho SD 1.5, FLUX.1-dev, Qwen và Z-Image Turbo.
 
 - Vast.ai/Linux có ComfyUI tại `/workspace/ComfyUI`
 - Có `bash`, `wget` và kết nối Internet ổn định
-- Dữ liệu tải dự kiến cho lần cài đầy đủ: **60–70 GB**
-- Dung lượng trống yêu cầu: **tối thiểu 70 GB**
-- Disk instance khuyến nghị: **100 GB trở lên**
+- Dữ liệu tải dự kiến cho lần cài đầy đủ: **72–82 GB**
+- Dung lượng trống yêu cầu: **tối thiểu 85 GB**
+- Disk instance khuyến nghị: **120 GB trở lên**
 - Cung cấp biến `HF_TOKEN` để tải FLUX.1-dev hoặc model gated
 - Restart ComfyUI sau khi tải hoàn tất
 
 Script sẽ hiển thị dung lượng còn trống trước khi tải và dừng nếu còn dưới 25 GB để tránh tạo file model bị hỏng.
+Lệnh `general` duy nhất bên dưới cũng tải đủ bộ Z-Image Turbo quantized mà workflow cần: `z_image_turbo_int8_convrot.safetensors`, `qwen_3_4b_fp8_mixed.safetensors` và `ae.safetensors` vào đúng thư mục ComfyUI.
 
 ### Cấu hình Vast.ai gợi ý
 
